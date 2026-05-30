@@ -1,0 +1,3 @@
+# Pact contract files are generated here when consumer tests run.
+# Run: npm run test:consumer
+# Then: npm run test:provider

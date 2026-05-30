@@ -1,0 +1,287 @@
+openapi: 3.0.3
+info:
+  title: Accounts Service API
+  description: FinTech Accounts microservice — manages accounts, balances, KYC, and fraud assessment.
+  version: 1.0.0
+  contact:
+    name: Darrius Jones
+    url: https://github.com/darrius-jones
+
+servers:
+  - url: http://localhost:3001
+    description: Local development
+
+tags:
+  - name: Accounts
+    description: Account operations
+  - name: KYC
+    description: Know Your Customer verification
+  - name: Fraud
+    description: Fraud detection and assessment
+  - name: Health
+    description: Service health
+
+paths:
+  /health:
+    get:
+      tags: [Health]
+      summary: Health check
+      operationId: getHealth
+      responses:
+        "200":
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [status, service]
+                properties:
+                  status:
+                    type: string
+                  service:
+                    type: string
+
+  /accounts/{id}:
+    get:
+      tags: [Accounts]
+      summary: Get account by ID
+      operationId: getAccount
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Account found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Account"
+        "404":
+          description: Account not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+  /accounts/{id}/balance:
+    get:
+      tags: [Accounts]
+      summary: Get account balance
+      operationId: getAccountBalance
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Account balance
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AccountBalance"
+        "404":
+          description: Account not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+  /users/{userId}/kyc:
+    get:
+      tags: [KYC]
+      summary: Get KYC verification status
+      operationId: getKycStatus
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: KYC record found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/KycVerification"
+        "404":
+          description: KYC record not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+  /fraud/assess:
+    post:
+      tags: [Fraud]
+      summary: Assess fraud risk for a payment
+      operationId: assessFraud
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [paymentId, amount]
+              properties:
+                paymentId:
+                  type: string
+                amount:
+                  type: number
+                  minimum: 0
+      responses:
+        "201":
+          description: Fraud assessment created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FraudAssessment"
+        "422":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+components:
+  schemas:
+    Currency:
+      type: string
+      enum: [USD, EUR, GBP, CAD]
+
+    AccountType:
+      type: string
+      enum: [checking, savings, credit]
+
+    AccountStatus:
+      type: string
+      enum: [active, inactive, frozen, closed]
+
+    Account:
+      type: object
+      required:
+        - id
+        - ownerId
+        - type
+        - status
+        - balance
+        - currency
+        - routingNumber
+        - accountNumber
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        ownerId:
+          type: string
+        type:
+          $ref: "#/components/schemas/AccountType"
+        status:
+          $ref: "#/components/schemas/AccountStatus"
+        balance:
+          type: number
+        currency:
+          $ref: "#/components/schemas/Currency"
+        routingNumber:
+          type: string
+          pattern: "^\\d{9}$"
+        accountNumber:
+          type: string
+          pattern: "^\\d{8,17}$"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    AccountBalance:
+      type: object
+      required: [accountId, available, pending, currency, lastUpdated]
+      properties:
+        accountId:
+          type: string
+          format: uuid
+        available:
+          type: number
+        pending:
+          type: number
+        currency:
+          $ref: "#/components/schemas/Currency"
+        lastUpdated:
+          type: string
+          format: date-time
+
+    KycStatus:
+      type: string
+      enum: [not_started, pending, approved, rejected]
+
+    KycVerification:
+      type: object
+      required: [userId, status, level]
+      properties:
+        userId:
+          type: string
+        status:
+          $ref: "#/components/schemas/KycStatus"
+        level:
+          type: integer
+          minimum: 0
+          maximum: 3
+        submittedAt:
+          type: string
+          format: date-time
+        reviewedAt:
+          type: string
+          format: date-time
+        rejectionReason:
+          type: string
+
+    RiskLevel:
+      type: string
+      enum: [low, medium, high, critical]
+
+    FraudAssessment:
+      type: object
+      required: [paymentId, riskLevel, riskScore, flags, recommendation, assessedAt]
+      properties:
+        paymentId:
+          type: string
+        riskLevel:
+          $ref: "#/components/schemas/RiskLevel"
+        riskScore:
+          type: number
+          minimum: 0
+          maximum: 100
+        flags:
+          type: array
+          items:
+            type: string
+        recommendation:
+          type: string
+          enum: [approve, review, decline]
+        assessedAt:
+          type: string
+          format: date-time
+
+    ApiError:
+      type: object
+      required: [code, message, requestId]
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        details:
+          type: object
+        requestId:
+          type: string

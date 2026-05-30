@@ -1,0 +1,267 @@
+openapi: 3.0.3
+info:
+  title: Payments Service API
+  description: FinTech Payments microservice — handles payment creation, retrieval, and lifecycle management.
+  version: 1.0.0
+  contact:
+    name: Darrius Jones
+    url: https://github.com/darrius-jones
+
+servers:
+  - url: http://localhost:3000
+    description: Local development
+
+tags:
+  - name: Payments
+    description: Payment operations
+  - name: Health
+    description: Service health
+
+paths:
+  /health:
+    get:
+      tags: [Health]
+      summary: Health check
+      operationId: getHealth
+      responses:
+        "200":
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [status, service]
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                  service:
+                    type: string
+                    example: payments-service
+
+  /payments:
+    get:
+      tags: [Payments]
+      summary: List all payments
+      operationId: listPayments
+      responses:
+        "200":
+          description: Paginated list of payments
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaymentListResponse"
+
+    post:
+      tags: [Payments]
+      summary: Create a new payment
+      operationId: createPayment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreatePaymentRequest"
+      responses:
+        "201":
+          description: Payment created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Payment"
+        "422":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+  /payments/{id}:
+    get:
+      tags: [Payments]
+      summary: Get payment by ID
+      operationId: getPayment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Payment found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Payment"
+        "404":
+          description: Payment not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+  /payments/{id}/cancel:
+    patch:
+      tags: [Payments]
+      summary: Cancel a payment
+      operationId: cancelPayment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Payment cancelled
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Payment"
+        "404":
+          description: Payment not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "409":
+          description: Payment cannot be cancelled
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+components:
+  schemas:
+    Currency:
+      type: string
+      enum: [USD, EUR, GBP, CAD]
+
+    PaymentStatus:
+      type: string
+      enum: [pending, processing, completed, failed, cancelled]
+
+    PaymentMethod:
+      type: string
+      enum: [card, bank_transfer, wallet]
+
+    Payment:
+      type: object
+      required:
+        - id
+        - amount
+        - currency
+        - status
+        - method
+        - sourceAccountId
+        - destinationAccountId
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        amount:
+          type: number
+          minimum: 0.01
+        currency:
+          $ref: "#/components/schemas/Currency"
+        status:
+          $ref: "#/components/schemas/PaymentStatus"
+        method:
+          $ref: "#/components/schemas/PaymentMethod"
+        sourceAccountId:
+          type: string
+          format: uuid
+        destinationAccountId:
+          type: string
+          format: uuid
+        description:
+          type: string
+          maxLength: 255
+        metadata:
+          type: object
+          additionalProperties:
+            type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    CreatePaymentRequest:
+      type: object
+      required:
+        - amount
+        - currency
+        - method
+        - sourceAccountId
+        - destinationAccountId
+      properties:
+        amount:
+          type: number
+          minimum: 0.01
+          maximum: 1000000
+        currency:
+          $ref: "#/components/schemas/Currency"
+        method:
+          $ref: "#/components/schemas/PaymentMethod"
+        sourceAccountId:
+          type: string
+          format: uuid
+        destinationAccountId:
+          type: string
+          format: uuid
+        description:
+          type: string
+          maxLength: 255
+        metadata:
+          type: object
+          additionalProperties:
+            type: string
+
+    Pagination:
+      type: object
+      required: [page, pageSize, total, totalPages]
+      properties:
+        page:
+          type: integer
+          minimum: 1
+        pageSize:
+          type: integer
+          minimum: 1
+          maximum: 100
+        total:
+          type: integer
+          minimum: 0
+        totalPages:
+          type: integer
+          minimum: 0
+
+    PaymentListResponse:
+      type: object
+      required: [data, pagination]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Payment"
+        pagination:
+          $ref: "#/components/schemas/Pagination"
+
+    ApiError:
+      type: object
+      required: [code, message, requestId]
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        details:
+          type: object
+        requestId:
+          type: string
