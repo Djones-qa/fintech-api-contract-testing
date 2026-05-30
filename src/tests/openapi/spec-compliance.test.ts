@@ -6,16 +6,15 @@
  */
 
 import path from "path";
-import * as SwaggerParserModule from "swagger-parser";
-
-// swagger-parser exports static methods; cast to access them with correct types
-const SwaggerParser = SwaggerParserModule as unknown as {
-  validate(path: string): Promise<{ info: { title: string; version: string } }>;
-  dereference(path: string): Promise<unknown>;
-};
 import request from "supertest";
 import { app as paymentsApp, seedPayments, payments } from "../../services/payments-service/app";
 import { app as accountsApp, seedAccounts, accounts } from "../../services/accounts-service/app";
+
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const SwaggerParser = require("swagger-parser") as {
+  validate(path: string): Promise<{ info: { title: string; version: string } }>;
+  dereference(path: string): Promise<unknown>;
+};
 
 const PAYMENTS_SPEC = path.resolve(process.cwd(), "openapi", "payments-service.yaml");
 const ACCOUNTS_SPEC = path.resolve(process.cwd(), "openapi", "accounts-service.yaml");

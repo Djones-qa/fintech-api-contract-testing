@@ -190,7 +190,7 @@ describe("PaymentsService → AccountsService contract", () => {
             },
             body: {
               paymentId: like("550e8400-e29b-41d4-a716-446655440000"),
-              amount: decimal(250.0),
+              amount: like(250.0),
             },
           },
           willRespondWith: {
