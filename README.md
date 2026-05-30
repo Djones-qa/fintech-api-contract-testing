@@ -1,6 +1,6 @@
 # fintech-api-contract-testing
 
-[![Contract Tests](https://github.com/darrius-jones/fintech-api-contract-testing/actions/workflows/contract-tests.yml/badge.svg)](https://github.com/darrius-jones/fintech-api-contract-testing/actions/workflows/contract-tests.yml)
+[![Contract Tests](https://github.com/Djones-qa/fintech-api-contract-testing/actions/workflows/contract-tests.yml/badge.svg)](https://github.com/Djones-qa/fintech-api-contract-testing/actions/workflows/contract-tests.yml)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Pact](https://img.shields.io/badge/Pact-Consumer--Driven-E4003A?logo=pact&logoColor=white)](https://pact.io)
 [![Zod](https://img.shields.io/badge/Zod-Schema%20Validation-3E67B1)](https://zod.dev)
@@ -124,7 +124,7 @@ fintech-api-contract-testing/
 ### Install
 
 ```bash
-git clone https://github.com/darrius-jones/fintech-api-contract-testing.git
+git clone https://github.com/Djones-qa/fintech-api-contract-testing.git
 cd fintech-api-contract-testing
 npm install
 ```
@@ -224,7 +224,7 @@ npm run pact:can-deploy
 
 **Darrius Jones**
 
-- GitHub: [github.com/darrius-jones](https://github.com/darrius-jones)
+- GitHub: [github.com/Djones-qa](https://github.com/Djones-qa)
 - LinkedIn: [linkedin.com/in/darrius-jones-28226b350](https://www.linkedin.com/in/darrius-jones-28226b350/)
 
 ---
