@@ -81,7 +81,8 @@ describe("AccountsService provider verification", () => {
       pactUrls: [pactFile],
       stateHandlers,
       logLevel: "warn",
-      publishVerificationResult: false, // set true in CI with pactBrokerUrl
+      publishVerificationResult: false,
+      providerVersion: "1.0.0",
     });
 
     await verifier.verifyProvider();
