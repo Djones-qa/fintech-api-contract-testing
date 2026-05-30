@@ -10,7 +10,7 @@ import path from "path";
 import { PactV3, MatchersV3 } from "@pact-foundation/pact";
 import axios from "axios";
 
-const { like, regex, integer, decimal } = MatchersV3;
+const { like, regex, integer } = MatchersV3;
 
 const provider = new PactV3({
   consumer: "PaymentsService",
@@ -41,7 +41,7 @@ describe("PaymentsService → AccountsService contract", () => {
               ownerId: like("user-001"),
               type: regex("checking|savings|credit", "checking"),
               status: regex("active|inactive|frozen|closed", "active"),
-              balance: decimal(10000.0),
+              balance: like(10000.0),
               currency: regex("USD|EUR|GBP|CAD", "USD"),
               routingNumber: regex("^\\d{9}$", "021000021"),
               accountNumber: like("123456789012"),
@@ -117,8 +117,8 @@ describe("PaymentsService → AccountsService contract", () => {
             headers: { "Content-Type": "application/json" },
             body: {
               accountId: like("660e8400-e29b-41d4-a716-446655440001"),
-              available: decimal(10000.0),
-              pending: decimal(0),
+              available: like(10000.0),
+              pending: like(0),
               currency: regex("USD|EUR|GBP|CAD", "USD"),
               lastUpdated: like("2024-01-15T10:31:00.000Z"),
             },
@@ -199,7 +199,7 @@ describe("PaymentsService → AccountsService contract", () => {
             body: {
               paymentId: like("550e8400-e29b-41d4-a716-446655440000"),
               riskLevel: regex("low|medium|high|critical", "low"),
-              riskScore: decimal(15),
+              riskScore: like(15),
               flags: like([]),
               recommendation: regex("approve|review|decline", "approve"),
               assessedAt: like("2024-01-15T10:30:00.000Z"),
