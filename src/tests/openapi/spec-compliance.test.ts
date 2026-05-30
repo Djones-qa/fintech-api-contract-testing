@@ -18,24 +18,24 @@ const ACCOUNTS_SPEC = path.resolve(process.cwd(), "openapi", "accounts-service.y
 
 describe("OpenAPI spec validity", () => {
   it("payments-service.yaml is a valid OpenAPI 3.0 document", async () => {
-    const api = await SwaggerParser.validate(PAYMENTS_SPEC);
+    const api = await new SwaggerParser().validate(PAYMENTS_SPEC);
     expect(api.info.title).toBe("Payments Service API");
     expect(api.info.version).toBeDefined();
   });
 
   it("accounts-service.yaml is a valid OpenAPI 3.0 document", async () => {
-    const api = await SwaggerParser.validate(ACCOUNTS_SPEC);
+    const api = await new SwaggerParser().validate(ACCOUNTS_SPEC);
     expect(api.info.title).toBe("Accounts Service API");
     expect(api.info.version).toBeDefined();
   });
 
   it("payments spec has no unresolved $ref pointers", async () => {
-    const api = await SwaggerParser.dereference(PAYMENTS_SPEC);
+    const api = await new SwaggerParser().dereference(PAYMENTS_SPEC);
     expect(api).toBeDefined();
   });
 
   it("accounts spec has no unresolved $ref pointers", async () => {
-    const api = await SwaggerParser.dereference(ACCOUNTS_SPEC);
+    const api = await new SwaggerParser().dereference(ACCOUNTS_SPEC);
     expect(api).toBeDefined();
   });
 });

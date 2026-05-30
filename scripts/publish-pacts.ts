@@ -37,7 +37,7 @@ const publisher = new Publisher({
 });
 
 publisher
-  .publishPacts()
+  .publish()
   .then(() => {
     console.log(`✅  Pacts published successfully.`);
     console.log(`    Version : ${consumerVersion}`);
